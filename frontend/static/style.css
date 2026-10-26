@@ -1,18 +1,26 @@
+/* =========================================================
+   1. VARIÁVEIS (design tokens)
+   Mudar uma cor aqui altera o dashboard inteiro.
+   ========================================================= */
 :root {
   --bg-0: #07080f;
   --bg-1: #0d1020;
-  --temp: #ff5a3c;
+
+  --temp: #ff5a3c;          /* vermelho/laranja néon */
   --temp-glow: rgba(255, 90, 60, 0.55);
   --temp-soft: #ffa24a;
-  --hum: #22d3ee;
+
+  --hum: #22d3ee;           /* azul/ciano néon */
   --hum-glow: rgba(34, 211, 238, 0.55);
   --hum-soft: #4f8cff;
+
   --glass: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.12);
   --text: #eef1ff;
   --muted: #8a90ad;
   --ok: #3ddc97;
   --err: #ff5470;
+
   --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
@@ -33,6 +41,10 @@ body {
   overflow-x: hidden;
 }
 
+/* =========================================================
+   2. ORBES DE LUZ NO FUNDO
+   Sem elas, o efeito "vidro" não tem nada para desfocar.
+   ========================================================= */
 .orb {
   position: fixed;
   border-radius: 50%;
@@ -50,6 +62,9 @@ body {
   to   { transform: translate(40px, 30px) scale(1.12); }
 }
 
+/* =========================================================
+   3. LAYOUT PRINCIPAL
+   ========================================================= */
 .app {
   position: relative;
   z-index: 1;
@@ -72,6 +87,7 @@ header {
 }
 .title p { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
 
+/* Indicador de estado da conexão (pontinho pulsando) */
 .status {
   display: inline-flex;
   align-items: center;
@@ -107,6 +123,13 @@ header {
 }
 @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
 
+/* =========================================================
+   4. CARTÕES EM GLASSMORPHISM
+   - backdrop-filter: desfoca o que está atrás (efeito vidro)
+   - --accent / --glow definidos por cartão (temp vs. hum)
+   - --mx / --my: posição do mouse, atualizada pelo JS, usada
+     para criar um "holofote" que segue o cursor
+   ========================================================= */
 .card {
   --accent: var(--temp);
   --glow: var(--temp-glow);
@@ -132,6 +155,7 @@ header {
   --accent-2: var(--hum-soft);
 }
 
+/* Holofote que segue o mouse dentro do cartão */
 .card::before {
   content: "";
   position: absolute; inset: 0;
@@ -141,6 +165,7 @@ header {
   pointer-events: none;
 }
 
+/* HOVER: sobe, brilha na cor do dado e mostra o holofote */
 .card:hover {
   transform: translateY(-8px) scale(1.015);
   border-color: var(--accent);
@@ -174,6 +199,7 @@ header {
 .card:hover .icon { transform: rotate(-8deg) scale(1.12); box-shadow: 0 0 22px var(--glow); }
 .icon svg { width: 24px; height: 24px; }
 
+/* Valor grande com gradiente + brilho néon */
 .value {
   position: relative;
   display: flex;
@@ -194,12 +220,14 @@ header {
   font-weight: 500;
   opacity: 0.9;
 }
+/* Flash curto quando o valor muda */
 .value.flash { animation: flash 0.6s ease-out; }
 @keyframes flash {
   0%   { filter: drop-shadow(0 0 4px var(--glow)) brightness(1.8); transform: scale(1.04); }
   100% { filter: drop-shadow(0 0 18px var(--glow)) brightness(1); transform: scale(1); }
 }
 
+/* Barra de progresso fina (visual do "quão alto está") */
 .bar {
   position: relative;
   height: 6px;
@@ -224,6 +252,9 @@ header {
   font-family: var(--mono);
 }
 
+/* =========================================================
+   5. RODAPÉ: hora da última atualização + botões
+   ========================================================= */
 footer {
   margin-top: 26px;
   display: flex;
@@ -253,9 +284,17 @@ footer {
 }
 .last-update span { color: var(--muted); font-size: 0.8rem; margin-left: 8px; }
 
+/* Grupo que alinha os dois botões lado a lado (quebra em ecrãs pequenos) */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ---------- Botões (Sincronizar Dados / Gerar Relatório) ---------- */
 .sync-btn {
   position: relative;
-  overflow: hidden;
+  overflow: hidden;               /* esconde o ripple que sai do botão */
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -270,14 +309,16 @@ footer {
   transition: transform 0.2s, box-shadow 0.3s, filter 0.3s;
 }
 .sync-btn:hover  { transform: translateY(-2px); box-shadow: 0 14px 34px -6px var(--temp-glow); filter: brightness(1.1); }
-.sync-btn:active { transform: scale(0.95); }
+.sync-btn:active { transform: scale(0.95); }               /* feedback de clique */
 .sync-btn:disabled { cursor: progress; filter: saturate(0.7); }
 .sync-btn svg { width: 18px; height: 18px; transition: transform 0.4s; }
 .sync-btn:hover svg { transform: rotate(90deg); }
 
+/* Enquanto sincroniza, o ícone gira sem parar */
 .sync-btn.loading svg { animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Ripple: círculo que expande a partir do ponto clicado */
 .ripple {
   position: absolute;
   border-radius: 50%;
@@ -288,6 +329,7 @@ footer {
 }
 @keyframes ripple { to { transform: scale(4); opacity: 0; } }
 
+/* Mensagem de erro (aparece só quando o servidor não responde) */
 .error {
   display: none;
   margin-top: 16px;
@@ -300,6 +342,124 @@ footer {
 }
 .error.show { display: block; }
 
+/* =========================================================
+   6. MODAL DO RELATÓRIO (Glassmorphism)
+   - .modal-overlay: fundo escurecido + desfocado que cobre a tela
+   - .open: classe aplicada pelo JS para mostrar o modal
+   - O modal usa a variável --state (verde ou vermelho) para
+     colorir o ícone, o brilho e a borda conforme o resultado
+   ========================================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 5, 12, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+.modal-overlay.open { opacity: 1; visibility: visible; }
+
+.modal {
+  --state: var(--ok);
+  --state-glow: rgba(61, 220, 151, 0.5);
+
+  width: min(460px, 100%);
+  padding: 34px 30px 28px;
+  text-align: center;
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+  border: 1px solid var(--state);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 60px -10px var(--state-glow), inset 0 1px 0 rgba(255,255,255,0.15);
+  transform: translateY(24px) scale(0.94);
+  transition: transform 0.4s cubic-bezier(.2,.9,.3,1.2);
+}
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+/* Estado de anomalia: troca as cores do modal para vermelho */
+.modal.alert {
+  --state: var(--err);
+  --state-glow: rgba(255, 84, 112, 0.55);
+}
+
+.modal-icon {
+  width: 68px; height: 68px;
+  margin: 0 auto 18px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: var(--state);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--state);
+  box-shadow: 0 0 30px var(--state-glow);
+}
+.modal-icon svg { width: 32px; height: 32px; }
+.modal.alert .modal-icon { animation: shake 0.5s 0.2s; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.modal h2 {
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  color: var(--state);
+  text-shadow: 0 0 20px var(--state-glow);
+}
+.modal-sub { margin: 8px 0 22px; color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+
+/* Linhas com cada leitura (temperatura / umidade) */
+.report-list { list-style: none; display: grid; gap: 10px; text-align: left; }
+.report-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--glass-border);
+}
+.report-list .r-name { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.report-list .r-value { font-family: var(--mono); font-size: 1.25rem; font-weight: 700; margin-top: 2px; }
+.report-list .r-range { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+.report-list .r-chip {
+  padding: 5px 11px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.r-chip.good { color: var(--ok);  background: rgba(61, 220, 151, 0.12); border: 1px solid rgba(61, 220, 151, 0.4); }
+.r-chip.bad  { color: var(--err); background: rgba(255, 84, 112, 0.12); border: 1px solid rgba(255, 84, 112, 0.4); }
+/* Cores dos valores seguem a identidade de cada grandeza */
+.report-list li[data-kind="temp"] .r-value { color: var(--temp-soft); }
+.report-list li[data-kind="hum"]  .r-value { color: var(--hum); }
+
+.modal-time { display: block; margin-top: 18px; color: var(--muted); font-size: 0.75rem; font-family: var(--mono); }
+
+.modal-close {
+  margin-top: 20px;
+  padding: 12px 30px;
+  border-radius: 12px;
+  cursor: pointer;
+  font: 600 0.9rem var(--font);
+  color: var(--text);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--glass-border);
+  transition: background 0.25s, transform 0.2s, border-color 0.25s;
+}
+.modal-close:hover  { background: rgba(255,255,255,0.14); border-color: var(--state); }
+.modal-close:active { transform: scale(0.95); }
+
+/* Respeita quem prefere menos movimento */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }

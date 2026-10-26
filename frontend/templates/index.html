@@ -1,30 +1,32 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Estação Meteorológica IoT</title>
 
+  <!-- Tipografia moderna (Google Fonts). Se estiver offline, cai para a fonte do sistema. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-  
-  <!-- Importação do CSS com a regra do Flask -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+
+  <!-- CSS servido pela pasta static/ do Flask (Jinja2) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
+  <!-- Orbes decorativas de fundo -->
   <div class="orb orb--temp"></div>
   <div class="orb orb--hum"></div>
 
   <main class="app">
     <header>
       <div class="title">
-        <h1>Estação Meteorológica</h1>
-        <p>ESP32 · DHT22 · Monitorização em tempo real</p>
+        <h1>Painel de Controle</h1>
+        <p>ESP32 · Monitoramento em tempo real</p>
       </div>
       <div class="status" id="status">
-        <span class="dot"></span><span id="statusText">A ligar…</span>
+        <span class="dot"></span><span id="statusText">Conectando…</span>
       </div>
     </header>
 
@@ -66,19 +68,47 @@
         <strong id="lastUpdate">--:--:--</strong><span id="lastDate"></span>
       </div>
 
-      <button class="sync-btn" id="syncBtn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 0 0-15.5-6.3L3 8"/><path d="M3 3v5h5"/>
-          <path d="M3 12a9 9 0 0 0 15.5 6.3L21 16"/><path d="M21 21v-5h-5"/>
-        </svg>
-        <span id="syncLabel">Sincronizar Dados</span>
-      </button>
+      <!-- Grupo de ações: os dois botões usam a mesma classe .sync-btn (mesmo estilo visual) -->
+      <div class="actions">
+        <button class="sync-btn" id="syncBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 0 0-15.5-6.3L3 8"/><path d="M3 3v5h5"/>
+            <path d="M3 12a9 9 0 0 0 15.5 6.3L21 16"/><path d="M21 21v-5h-5"/>
+          </svg>
+          <span id="syncLabel">Sincronizar Dados</span>
+        </button>
+
+        <button class="sync-btn" id="reportBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/>
+          </svg>
+          <span>Gerar Relatório</span>
+        </button>
+      </div>
     </footer>
 
     <div class="error" id="errorBox"></div>
   </main>
 
-  <!-- Importação do JS com a regra do Flask -->
+  <!-- =========================================================
+       MODAL DO RELATÓRIO
+       O conteúdo (título, valores, estado) é preenchido pelo JS.
+       ========================================================= -->
+  <div class="modal-overlay" id="reportModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+      <div class="modal-icon" id="reportIcon"></div>
+      <h2 id="reportTitle">Relatório</h2>
+      <p class="modal-sub" id="reportSub"></p>
+
+      <ul class="report-list" id="reportList"></ul>
+
+      <small class="modal-time" id="reportTime"></small>
+      <button class="modal-close" id="reportClose" type="button">Fechar</button>
+    </div>
+  </div>
+
+  <!-- JS servido pela pasta static/ do Flask (Jinja2) -->
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
