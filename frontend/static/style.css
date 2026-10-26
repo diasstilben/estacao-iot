@@ -343,6 +343,36 @@ footer {
 .error.show { display: block; }
 
 /* =========================================================
+   CRÉDITOS DO CRIADOR
+   Texto neutro (sem cor néon), afastado do conteúdo e
+   separado por uma linha fina que esmaece nas pontas.
+   ========================================================= */
+.credits {
+  position: relative;
+  margin-top: 72px;          /* distância do conteúdo acima: aumente para descer mais */
+  padding-top: 22px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+/* A linha divisória: um gradiente que some nas extremidades */
+.credits::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+}
+.credits strong { font-weight: 600; color: var(--text); }
+.credits a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.25s, border-color 0.25s;
+}
+.credits a:hover { color: var(--text); border-bottom-color: var(--muted); }
+
+/* =========================================================
    6. MODAL DO RELATÓRIO (Glassmorphism)
    - .modal-overlay: fundo escurecido + desfocado que cobre a tela
    - .open: classe aplicada pelo JS para mostrar o modal
