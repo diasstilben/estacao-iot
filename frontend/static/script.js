@@ -6,9 +6,10 @@ const REFRESH_MS = 3000;            // atualização automática a cada 3 segund
 const TIMEOUT_MS = 2500;            // se o servidor não responder a tempo, conta como erro
 
 // Faixas consideradas "estáveis" no relatório (limites inclusivos)
+// "tags" = texto do selo em cada cartão: abaixo da faixa / dentro / acima
 const LIMITS = {
-  temp: { min: 15, max: 30, unit: "°C", name: "Temperatura" },
-  hum:  { min: 40, max: 70, unit: "%",  name: "Umidade" },
+  temp: { min: 15, max: 30, unit: "°C", name: "Temperatura", tags: { low: "Frio", ok: "Confortável", high: "Quente" } },
+  hum:  { min: 40, max: 70, unit: "%",  name: "Umidade",     tags: { low: "Seco", ok: "Confortável", high: "Úmido" } },
 };
 
 // Referências ao DOM
@@ -16,6 +17,9 @@ const $ = (id) => document.getElementById(id);
 const el = {
   tempValue: $("tempValue"), humValue: $("humValue"),
   tempBar: $("tempBar"),     humBar: $("humBar"),
+  tempCard: $("tempValue").closest(".card"), humCard: $("humValue").closest(".card"),
+  tempBadge: $("tempBadge"), humBadge: $("humBadge"),
+  tempHint: $("tempHint"),   humHint: $("humHint"),
   lastUpdate: $("lastUpdate"), lastDate: $("lastDate"),
   status: $("status"), statusText: $("statusText"),
   syncBtn: $("syncBtn"), syncLabel: $("syncLabel"),
@@ -63,11 +67,34 @@ function animateNumber(container, key, newValue) {
 const toPercent = (v, min, max) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100));
 
 /* =========================================================
+   ESTADO DE CADA CARTÃO (selo + borda de alerta)
+   Compara o valor com a faixa em LIMITS (a mesma usada pelo
+   relatório): atualiza o texto/cor do selo e liga a classe
+   .out no cartão quando o valor está fora da faixa.
+   ========================================================= */
+function applyState(kind, card, badge, value) {
+  const verdict = evaluate(value, LIMITS[kind]);          // "ok" | "low" | "high"
+  badge.querySelector(".b-text").textContent = LIMITS[kind].tags[verdict];
+  badge.classList.remove("idle", "good", "bad");
+  badge.classList.add(verdict === "ok" ? "good" : "bad");
+  card.classList.toggle("out", verdict !== "ok");
+}
+
+// Texto "ideal: 15–30°C" sob cada número, gerado a partir de LIMITS (uma única fonte de verdade)
+for (const [kind, hint] of [["temp", el.tempHint], ["hum", el.humHint]]) {
+  const { min, max, unit } = LIMITS[kind];
+  hint.textContent = `ideal: ${min}–${max}${unit}`;
+}
+
+/* =========================================================
    ATUALIZAR A TELA COM OS DADOS RECEBIDOS
    ========================================================= */
 function render({ temperatura, umidade }) {
   animateNumber(el.tempValue, "temperatura", Number(temperatura));
   animateNumber(el.humValue,  "umidade",     Number(umidade));
+
+  applyState("temp", el.tempCard, el.tempBadge, Number(temperatura));
+  applyState("hum",  el.humCard,  el.humBadge,  Number(umidade));
 
   el.tempBar.style.width = toPercent(temperatura, -10, 50) + "%"; // escala do DHT22: -40..80, aqui -10..50 (uso comum)
   el.humBar.style.width  = toPercent(umidade, 0, 100) + "%";

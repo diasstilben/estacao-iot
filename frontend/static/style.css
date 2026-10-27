@@ -155,6 +155,14 @@ header {
   --accent-2: var(--hum-soft);
 }
 
+/* Cartão FORA DA FAIXA (classe .out aplicada pelo JS):
+   borda e halo avermelhados mesmo sem passar o mouse.
+   Fica antes do :hover para o hover ainda poder reforçar a sombra. */
+.card.out {
+  border-color: rgba(255, 84, 112, 0.55);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 40px -10px rgba(255, 84, 112, 0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
 /* Holofote que segue o mouse dentro do cartão */
 .card::before {
   content: "";
@@ -172,6 +180,8 @@ header {
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 45px -8px var(--glow), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 .card:hover::before { opacity: 0.35; }
+/* No hover, um cartão fora da faixa mantém a borda vermelha (não troca para a cor do dado) */
+.card.out:hover { border-color: var(--err); }
 
 .card-top {
   position: relative;
@@ -231,7 +241,7 @@ header {
 .bar {
   position: relative;
   height: 6px;
-  margin-top: 28px;
+  margin-top: 20px;
   border-radius: 99px;
   background: rgba(255,255,255,0.08);
   overflow: hidden;
@@ -251,6 +261,47 @@ header {
   color: var(--muted);
   font-family: var(--mono);
 }
+
+/* ---------- Linha de contexto: selo de estado + faixa ideal ---------- */
+.meta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 18px;
+}
+.hint {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+/* Selo (pílula) com pontinho colorido. Estados: .idle / .good / .bad */
+.badge {
+  --b: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--b);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid color-mix(in srgb, var(--b) 40%, transparent);
+  transition: color 0.4s, border-color 0.4s, background 0.4s;
+}
+.badge .b-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--b);
+  box-shadow: 0 0 8px var(--b);
+  transition: background 0.4s, box-shadow 0.4s;
+}
+.badge.good { --b: var(--ok);  background: rgba(61, 220, 151, 0.10); }
+.badge.bad  { --b: var(--err); background: rgba(255, 84, 112, 0.10); }
 
 /* =========================================================
    5. RODAPÉ: hora da última atualização + botões
@@ -313,6 +364,24 @@ footer {
 .sync-btn:disabled { cursor: progress; filter: saturate(0.7); }
 .sync-btn svg { width: 18px; height: 18px; transition: transform 0.4s; }
 .sync-btn:hover svg { transform: rotate(90deg); }
+
+/* Variante secundária (Gerar Relatório): vidro com borda, sem o gradiente chamativo.
+   O padding é 1px menor por lado para compensar a borda e manter a mesma altura do botão principal. */
+.sync-btn--ghost {
+  padding: 13px 25px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  box-shadow: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.sync-btn--ghost:hover {
+  filter: none;
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow: 0 0 26px -8px var(--hum-glow);
+}
 
 /* Enquanto sincroniza, o ícone gira sem parar */
 .sync-btn.loading svg { animation: spin 0.8s linear infinite; }
@@ -488,6 +557,13 @@ footer {
 }
 .modal-close:hover  { background: rgba(255,255,255,0.14); border-color: var(--state); }
 .modal-close:active { transform: scale(0.95); }
+
+/* Celular: os botões empilham e ocupam a largura toda (mais fáceis de tocar) */
+@media (max-width: 680px) {
+  .last-update { width: 100%; }
+  .actions { width: 100%; flex-direction: column; }
+  .sync-btn { width: 100%; justify-content: center; }
+}
 
 /* Respeita quem prefere menos movimento */
 @media (prefers-reduced-motion: reduce) {

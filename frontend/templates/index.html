@@ -42,6 +42,13 @@
           </div>
         </div>
         <div class="value" id="tempValue"><span class="num">--.-</span><span class="unit">°C</span></div>
+
+        <!-- Selo de estado + faixa ideal (preenchidos pelo JS a partir de LIMITS) -->
+        <div class="meta">
+          <span class="badge idle" id="tempBadge"><i class="b-dot"></i><span class="b-text">Aguardando</span></span>
+          <span class="hint" id="tempHint"></span>
+        </div>
+
         <div class="bar"><div class="bar-fill" id="tempBar"></div></div>
         <div class="scale"><span>-10°</span><span>20°</span><span>50°</span></div>
       </article>
@@ -57,6 +64,12 @@
           </div>
         </div>
         <div class="value" id="humValue"><span class="num">--.-</span><span class="unit">%</span></div>
+
+        <div class="meta">
+          <span class="badge idle" id="humBadge"><i class="b-dot"></i><span class="b-text">Aguardando</span></span>
+          <span class="hint" id="humHint"></span>
+        </div>
+
         <div class="bar"><div class="bar-fill" id="humBar"></div></div>
         <div class="scale"><span>0%</span><span>50%</span><span>100%</span></div>
       </article>
@@ -68,7 +81,7 @@
         <strong id="lastUpdate">--:--:--</strong><span id="lastDate"></span>
       </div>
 
-      <!-- Grupo de ações: os dois botões usam a mesma classe .sync-btn (mesmo estilo visual) -->
+      <!-- Grupo de ações: "Sincronizar" é o botão principal; "Gerar Relatório" é secundário (.sync-btn--ghost) -->
       <div class="actions">
         <button class="sync-btn" id="syncBtn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -78,7 +91,7 @@
           <span id="syncLabel">Sincronizar Dados</span>
         </button>
 
-        <button class="sync-btn" id="reportBtn" type="button">
+        <button class="sync-btn sync-btn--ghost" id="reportBtn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
             <path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h4"/>
@@ -90,7 +103,7 @@
 
     <div class="error" id="errorBox"></div>
 
-    <!-- Créditos do criador (troque o nome e o link pelos seus) -->
+    <!-- Créditos do criador -->
     <div class="credits">
       Desenvolvido por <strong>João Dias Stilben Teixeira</strong> · <a href="https://github.com/diasstilben" target="_blank" rel="noopener">GitHub</a>
     </div>
