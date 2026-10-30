@@ -2,8 +2,8 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-const char* ssid = "Wokwi-GUEST";
-const char* password = "";
+const char* ssid = "Estação_IOT";
+const char* password = "dias1234";
 const char* url_servidor = "http://192.168.13.115:5000/api/clima";
 const int Sensor = 21;
 
