@@ -1,17 +1,36 @@
-import mysql.connector
-from flask import Flask, request, jsonify, render_template  # render_template estava faltando
+import os
+import sqlite3
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__, template_folder="../frontend/templates", static_folder="../frontend/static")
 
+# Arquivo do banco fica na pasta backend/ (criado automaticamente na primeira execução)
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "estacao_iot.db")
+
 
 def get_conexao():
-    """Abre uma conexão nova com o MySQL (usada pelas duas rotas da API)."""
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="estacao_iot"
+    """Abre uma conexão nova com o SQLite (usada pelas duas rotas da API)."""
+    return sqlite3.connect(DB_PATH)
+
+
+def criar_tabela():
+    """Cria a tabela de histórico se ainda não existir."""
+    conexao = get_conexao()
+    conexao.execute(
+        """
+        CREATE TABLE IF NOT EXISTS historico_clima (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            temperatura REAL NOT NULL,
+            umidade REAL NOT NULL,
+            data_hora TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+        )
+        """
     )
+    conexao.commit()
+    conexao.close()
+
+
+criar_tabela()
 
 
 @app.route("/")
@@ -22,15 +41,14 @@ def home():
 
 @app.route('/api/clima', methods=['POST'])
 def receberdados():
-    """Rota que o ESP32 usa para ENVIAR as leituras (sem alterações)."""
+    """Rota que o ESP32 usa para ENVIAR as leituras."""
     dados = request.get_json()  # captura o pacote
     conexao = get_conexao()
-    cursor = conexao.cursor()
-    comando_sql = "INSERT INTO historico_clima (temperatura, umidade) VALUES (%s, %s)"
-    valores = (dados['temperatura'], dados['umidade'])
-    cursor.execute(comando_sql, valores)
+    conexao.execute(
+        "INSERT INTO historico_clima (temperatura, umidade) VALUES (?, ?)",
+        (dados['temperatura'], dados['umidade']),
+    )
     conexao.commit()
-    cursor.close()
     conexao.close()
     return jsonify({"status": "sucesso"}), 200
 
@@ -39,18 +57,14 @@ def receberdados():
 def clima_atual():
     """Rota que o DASHBOARD usa para LER a leitura mais recente."""
     conexao = get_conexao()
-    cursor = conexao.cursor()
-    # Assume que a tabela tem uma coluna "id" auto-incremento (a mais recente tem o maior id)
-    cursor.execute("SELECT temperatura, umidade FROM historico_clima ORDER BY id DESC LIMIT 1")
-    linha = cursor.fetchone()
-    cursor.close()
+    linha = conexao.execute(
+        "SELECT temperatura, umidade FROM historico_clima ORDER BY id DESC LIMIT 1"
+    ).fetchone()
     conexao.close()
 
     if linha is None:
         return jsonify({"erro": "Nenhuma leitura registrada ainda"}), 404
 
-    # float(): se a coluna for DECIMAL, o MySQL devolve Decimal e o Flask o enviaria como texto,
-    # o que o JS rejeitaria (ele espera números)
     return jsonify({"temperatura": float(linha[0]), "umidade": float(linha[1])}), 200
 
 
