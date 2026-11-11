@@ -7,7 +7,7 @@ const char* password = "dias1234";
 const char* url_servidor = "http://192.168.13.115:5000/api/clima";
 const int Sensor = 21;
 
-DHT dht(Sensor, DHT22);
+DHT dht(Sensor, DHT11);
 
 void setup() {
   Serial.begin(115200); // 1. Liga a tela
